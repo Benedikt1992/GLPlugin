@@ -12,6 +12,7 @@ use File::Basename;
 use Digest::MD5 qw(md5_hex);
 use Errno;
 use Data::Dumper;
+use Time::HiRes;
 our $AUTOLOAD;
 *VERSION = \'2.3.8.4';
 
@@ -406,10 +407,10 @@ sub set_timeout_alarm {
     my $mask = POSIX::SigSet->new( SIGALRM );
     my $action = POSIX::SigAction->new(
         $handler, $mask
-    );   
+    );
     my $oldaction = POSIX::SigAction->new();
     sigaction(SIGALRM ,$action ,$oldaction );
-  }    
+  }
   alarm(int($timeout)); # 1 second before the global unknown timeout
 }
 
@@ -797,9 +798,9 @@ sub getopts {
   if ($self->opts->environment) {
     # wenn die gewuenschten Environmentvariablen sich von den derzeit
     # gesetzten unterscheiden, dann restart. Denn $ENV aendert
-    # _nicht_ das Environment des laufenden Prozesses. 
+    # _nicht_ das Environment des laufenden Prozesses.
     # $ENV{ZEUGS} = 1 bedeutet lediglich, dass $ENV{ZEUGS} bei weiterer
-    # Verwendung 1 ist, bedeutet aber _nicht_, dass diese Variable 
+    # Verwendung 1 ist, bedeutet aber _nicht_, dass diese Variable
     # im Environment des laufenden Prozesses existiert.
     foreach (keys %{$self->opts->environment}) {
       if ((! $ENV{$_}) || ($ENV{$_} ne $self->opts->environment->{$_})) {
@@ -1109,7 +1110,7 @@ sub get_summary {
 sub valdiff {
   my ($self, $pparams, @keys) = @_;
   my %params = %{$pparams};
-  my $now = time;
+  my $now = Time::HiRes::time;
   my $newest_history_set = {};
   $params{freeze} = 0 if ! $params{freeze};
   my $mode = "normal";
