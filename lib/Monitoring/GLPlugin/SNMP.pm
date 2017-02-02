@@ -48,24 +48,24 @@ sub v2tov3 {
     my $separator = $1;
     my ($authprotocol, $authpassword, $privprotocol, $privpassword,
         $username, $contextengineid, $contextname) = split(/$separator/, $2);
-    $self->override_opt('authprotocol', $authprotocol) 
+    $self->override_opt('authprotocol', $authprotocol)
         if defined($authprotocol) && $authprotocol;
-    $self->override_opt('authpassword', $authpassword) 
+    $self->override_opt('authpassword', $authpassword)
         if defined($authpassword) && $authpassword;
-    $self->override_opt('privprotocol', $privprotocol) 
+    $self->override_opt('privprotocol', $privprotocol)
         if defined($privprotocol) && $privprotocol;
-    $self->override_opt('privpassword', $privpassword) 
+    $self->override_opt('privpassword', $privpassword)
         if defined($privpassword) && $privpassword;
-    $self->override_opt('username', $username) 
+    $self->override_opt('username', $username)
         if defined($username) && $username;
-    $self->override_opt('contextengineid', $contextengineid) 
+    $self->override_opt('contextengineid', $contextengineid)
         if defined($contextengineid) && $contextengineid;
-    $self->override_opt('contextname', $contextname) 
+    $self->override_opt('contextname', $contextname)
         if defined($contextname) && $contextname;
     $self->override_opt('protocol', '3') ;
   }
   if (($self->opts->authpassword || $self->opts->authprotocol ||
-      $self->opts->privpassword || $self->opts->privprotocol) && 
+      $self->opts->privpassword || $self->opts->privprotocol) &&
       $self->opts->protocol ne '3') {
     $self->override_opt('protocol', '3') ;
   }
@@ -245,12 +245,12 @@ sub validate_args {
       $self->create_opt('snmpdump');
       $self->override_opt('snmpdump', $self->opts->snmpwalk);
       $self->override_opt('snmpwalk', undef);
-    } elsif (! $self->opts->snmpwalk && $self->opts->hostname && $self->opts->mode eq 'walk') {   
+    } elsif (! $self->opts->snmpwalk && $self->opts->hostname && $self->opts->mode eq 'walk') {
       # snmp agent wird abgefragt, die ergebnisse landen in einem file, dessen name
       # nicht vorgegeben ist
       $self->create_opt('snmpdump');
     }
-  } else {    
+  } else {
     if ($self->opts->snmpwalk && ! $self->opts->hostname) {
       # normaler aufruf, mode != walk, oid-quelle ist eine datei
       $self->override_opt('hostname', 'snmpwalk.file'.md5_hex($self->opts->snmpwalk))
@@ -772,7 +772,7 @@ sub init {
     }
     my $toplevels = {};
     map {
-        /^(1\.3\.6\.1\.(\d+)\.(\d+)\.\d+\.\d+)\./; $toplevels->{$1} = 1; 
+        /^(1\.3\.6\.1\.(\d+)\.(\d+)\.\d+\.\d+)\./; $toplevels->{$1} = 1;
     } keys %{$unknowns};
     foreach (sort {$a cmp $b} keys %{$toplevels}) {
       push(@outputlist, ["<unknown>", $_]);
@@ -809,7 +809,7 @@ sub init {
                 foreach my $column (grep !/(flat_indices)|(indices)/, keys %{$line}) {
                   my $oid = $Monitoring::GLPlugin::SNMP::MibsAndOids::mibs_and_oids->{$mib}->{$column};
                   if (exists $unknowns->{$oid.'.'.$line->{flat_indices}}) {
-                    $confirmed->{$oid.'.'.$line->{flat_indices}} = 
+                    $confirmed->{$oid.'.'.$line->{flat_indices}} =
                         sprintf '%s::%s.%s = %s', $mib, $column, $line->{flat_indices}, $line->{$column};
                     delete $unknowns->{$oid.'.'.$line->{flat_indices}};
                   }
@@ -840,7 +840,7 @@ sub check_snmp_and_model {
   if ($self->opts->snmpwalk) {
     my $response = {};
     if (! -f $self->opts->snmpwalk) {
-      $self->add_message(CRITICAL, 
+      $self->add_message(CRITICAL,
           sprintf 'file %s not found',
           $self->opts->snmpwalk);
     } elsif (-x $self->opts->snmpwalk) {
@@ -1015,14 +1015,14 @@ sub establish_snmp_session {
       $params{'-version'} = $self->opts->protocol;
       $params{'-username'} = $self->opts->username;
       if ($self->opts->authpassword) {
-        $params{'-authpassword'} = 
+        $params{'-authpassword'} =
             $self->decode_password($self->opts->authpassword);
       }
       if ($self->opts->authprotocol) {
         $params{'-authprotocol'} = $self->opts->authprotocol;
       }
       if ($self->opts->privpassword) {
-        $params{'-privpassword'} = 
+        $params{'-privpassword'} =
             $self->decode_password($self->opts->privpassword);
       }
       if ($self->opts->privprotocol) {
@@ -1037,12 +1037,12 @@ sub establish_snmp_session {
       #  $params{'-contextname'} = $self->opts->contextname;
       #}
     } else {
-      $params{'-community'} = 
+      $params{'-community'} =
           $self->decode_password($self->opts->community);
     }
     my ($session, $error) = Net::SNMP->session(%params);
     if (! defined $session) {
-      $self->add_message(CRITICAL, 
+      $self->add_message(CRITICAL,
           sprintf 'cannot create session object: %s', $error);
       $self->debug(Data::Dumper::Dumper(\%params));
     } else {
@@ -1080,7 +1080,7 @@ sub establish_snmp_secondary_session {
 sub mult_snmp_max_msg_size {
   my ($self, $factor) = @_;
   $factor ||= 10;
-  $self->debug(sprintf "raise maxmsgsize %d * %d", 
+  $self->debug(sprintf "raise maxmsgsize %d * %d",
       $factor, $Monitoring::GLPlugin::SNMP::session->max_msg_size()) if $Monitoring::GLPlugin::SNMP::session;
   $Monitoring::GLPlugin::SNMP::session->max_msg_size($factor * $Monitoring::GLPlugin::SNMP::session->max_msg_size()) if $Monitoring::GLPlugin::SNMP::session;
 }
@@ -1109,6 +1109,7 @@ sub no_such_mode {
       $self->init();
     };
     if ($@) {
+      $self->debug(sprintf "Classes::Generic mode failed: %s", $@);
       bless $self, "Monitoring::GLPlugin::SNMP";
       $self->init();
     }
@@ -1202,23 +1203,23 @@ sub implements_mib {
   # some mibs are only composed of tables
   my $traces;
   if ($self->opts->snmpwalk) {
-    my @matches;  
-    # exact match  
-    push(@matches, @{[map {  
-        $_, $self->rawdata->{$_}  
-    } grep {  
-        $_ eq $Monitoring::GLPlugin::SNMP::MibsAndOids::mib_ids->{$mib}  
-    } keys %{$self->rawdata}]});  
-  
-    # partial match (add trailing dot)  
-    my $check = $Monitoring::GLPlugin::SNMP::MibsAndOids::mib_ids->{$mib};  
-    $check =~ s/\.?$/./;  
-    push(@matches, @{[map {  
-        $_, $self->rawdata->{$_}  
+    my @matches;
+    # exact match
+    push(@matches, @{[map {
+        $_, $self->rawdata->{$_}
     } grep {
-        substr($_, 0, length($check)) eq $check  
-    } keys %{$self->rawdata}]});  
-    $traces = {@matches};  
+        $_ eq $Monitoring::GLPlugin::SNMP::MibsAndOids::mib_ids->{$mib}
+    } keys %{$self->rawdata}]});
+
+    # partial match (add trailing dot)
+    my $check = $Monitoring::GLPlugin::SNMP::MibsAndOids::mib_ids->{$mib};
+    $check =~ s/\.?$/./;
+    push(@matches, @{[map {
+        $_, $self->rawdata->{$_}
+    } grep {
+        substr($_, 0, length($check)) eq $check
+    } keys %{$self->rawdata}]});
+    $traces = {@matches};
   } else {
     my %params = (
         -varbindlist => [
@@ -1303,7 +1304,7 @@ sub create_interface_cache_file {
     $self->opts->override_opt('hostname',
         'snmpwalk.file'.md5_hex($self->opts->snmpwalk))
   }
-  if ($self->opts->community) { 
+  if ($self->opts->community) {
     $extension .= md5_hex($self->opts->community);
   }
   $extension =~ s/\//_/g;
@@ -1327,7 +1328,7 @@ sub update_entry_cache {
   if (ref($key_attr) ne "ARRAY") {
     $key_attr = [$key_attr];
   }
-  my $cache = sprintf "%s_%s_%s_cache", 
+  my $cache = sprintf "%s_%s_%s_cache",
       $mib, $table, join('#', @{$key_attr});
   my $statefile = $self->create_entry_cache_file($mib, $table, $key_attr);
   my $update = time - 3600;
@@ -1351,7 +1352,7 @@ sub save_cache {
   if (ref($key_attr) ne "ARRAY") {
     $key_attr = [$key_attr];
   }
-  my $cache = sprintf "%s_%s_%s_cache", 
+  my $cache = sprintf "%s_%s_%s_cache",
       $mib, $table, join('#', @{$key_attr});
   $self->create_statefilesdir();
   my $statefile = $self->create_entry_cache_file($mib, $table, $key_attr);
@@ -1368,7 +1369,7 @@ sub load_cache {
   if (ref($key_attr) ne "ARRAY") {
     $key_attr = [$key_attr];
   }
-  my $cache = sprintf "%s_%s_%s_cache", 
+  my $cache = sprintf "%s_%s_%s_cache",
       $mib, $table, join('#', @{$key_attr});
   my $statefile = $self->create_entry_cache_file($mib, $table, $key_attr);
   $self->{$cache} = {};
@@ -1502,7 +1503,7 @@ sub clear_table_cache {
 }
 
 ################################################################
-# 2nd level 
+# 2nd level
 #
 sub get_snmp_object {
   my ($self, $mib, $mo, $index) = @_;
@@ -1612,7 +1613,7 @@ sub get_snmp_table_objects {
         map { $result->{$_} = $ifresult->{$_} }
             keys %{$ifresult};
       }
-      my @indices = 
+      my @indices =
           $self->get_indices(
               -baseoid => $Monitoring::GLPlugin::SNMP::MibsAndOids::mibs_and_oids->{$mib}->{$entry},
               -oids => [keys %{$result}]);
@@ -1748,7 +1749,7 @@ sub get_snmp_table_objects {
           scalar(keys %{$result}));
       # now we have numerical_oid+index => value
       # needs to become symboic_oid => value
-      my @indices = 
+      my @indices =
           $self->get_indices(
               -baseoid => $Monitoring::GLPlugin::SNMP::MibsAndOids::mibs_and_oids->{$mib}->{$entry},
               -oids => [keys %{$result}]);
@@ -1770,7 +1771,7 @@ sub bulk_is_baeh {
 
 ################################################################
 # 3rd level functions. calling net::snmp-functions
-# 
+#
 sub get_request {
   my ($self, %params) = @_;
   my @notcached = ();
@@ -1798,10 +1799,10 @@ sub get_request {
     # und result ist
     # { 1.3.6.1.4.1.318.1.1.1.1.1.1.0 => "Smart-UPS RT 10000 XL" }
     # letzteres kommt in raw_data
-    # und beim abschliessenden map wirds natuerlich nicht mehr gefunden 
+    # und beim abschliessenden map wirds natuerlich nicht mehr gefunden
     # also leeres return. <<kraftausdruck>>
     foreach my $key (%{$result}) {
-      # so, und zwei jahre spaeter kommt man drauf, dass es viele sorten 
+      # so, und zwei jahre spaeter kommt man drauf, dass es viele sorten
       # von stinkstiefeln gibt. die fragt man nach 1.3.6.1.4.1.13885.120.1.3.1
       # und kriegt als antwort 1.3.6.1.4.1.13885.120.1.3.1.0=[noSuchInstance]
       # bis zum 11.10.16 wurde das in den cache geschrieben. eine etage hoeher
@@ -2082,7 +2083,7 @@ sub get_table {
     my $result = $Monitoring::GLPlugin::SNMP::session->get_table(%params);
     $self->debug(sprintf "get_table returned %d oids", scalar(keys %{$result}));
     if (scalar(keys %{$result}) == 0) {
-      $self->debug(sprintf "get_table error: %s", 
+      $self->debug(sprintf "get_table error: %s",
           $Monitoring::GLPlugin::SNMP::session->error());
       $self->debug("get_table error: try fallback");
       $params{'-maxrepetitions'} = 1;
@@ -2090,7 +2091,7 @@ sub get_table {
       $result = $Monitoring::GLPlugin::SNMP::session->get_table(%params);
       $self->debug(sprintf "get_table returned %d oids", scalar(keys %{$result}));
       if (scalar(keys %{$result}) == 0) {
-        $self->debug(sprintf "get_table error: %s", 
+        $self->debug(sprintf "get_table error: %s",
             $Monitoring::GLPlugin::SNMP::session->error());
         $self->debug("get_table error: no more fallbacks. Try --protocol 1");
       }
@@ -2118,7 +2119,7 @@ sub get_table {
 
 ################################################################
 # helper functions
-# 
+#
 sub valid_response {
   my ($self, $mib, $oid, $index) = @_;
   $self->require_mib($mib);
@@ -2292,7 +2293,7 @@ sub get_matching_oids {
     map { $result->{$_} = $Monitoring::GLPlugin::SNMP::rawdata->{$_} }
         grep /^$oidpattern(?=\.|$)/, keys %{$Monitoring::GLPlugin::SNMP::rawdata};
   }
-  $self->debug(sprintf "get_matching_oids returns %d from %d oids", 
+  $self->debug(sprintf "get_matching_oids returns %d from %d oids",
       scalar(keys %{$result}), scalar(keys %{$Monitoring::GLPlugin::SNMP::rawdata}));
   return $result;
 }
@@ -2359,7 +2360,7 @@ sub get_number {
 
 ################################################################
 # caching functions
-# 
+#
 sub set_rawdata {
   my ($self, $rawdata) = @_;
   $Monitoring::GLPlugin::SNMP::rawdata = $rawdata;
@@ -2388,7 +2389,7 @@ sub get_cache_indices {
   if (ref($key_attr) ne "ARRAY") {
     $key_attr = [$key_attr];
   }
-  my $cache = sprintf "%s_%s_%s_cache", 
+  my $cache = sprintf "%s_%s_%s_cache",
       $mib, $table, join('#', @{$key_attr});
   my @indices = ();
   foreach my $key (keys %{$self->{$cache}}) {
