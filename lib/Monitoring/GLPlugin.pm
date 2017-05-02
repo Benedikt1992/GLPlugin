@@ -14,7 +14,7 @@ use Errno;
 use Data::Dumper;
 use Time::HiRes;
 our $AUTOLOAD;
-*VERSION = \'2.3.8.4';
+*VERSION = \'2.4.6.2';
 
 use constant { OK => 0, WARNING => 1, CRITICAL => 2, UNKNOWN => 3 };
 
@@ -402,9 +402,10 @@ sub set_timeout_alarm {
   my ($self, $timeout, $handler) = @_;
   $timeout ||= $self->opts->timeout;
   $handler ||= sub {
-    printf "UNKNOWN - %s timed out after %d seconds\n",
-        $Monitoring::GLPlugin::plugin->{name}, $self->opts->timeout;
-    exit 3;
+    $self->nagios_exit(UNKNOWN,
+        sprintf("%s timed out after %d seconds\n",
+            $Monitoring::GLPlugin::plugin->{name}, $self->opts->timeout)
+    );
   };
   use POSIX ':signal_h';
   if ($^O =~ /MSWin/) {
