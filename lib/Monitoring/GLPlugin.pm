@@ -14,7 +14,7 @@ use Errno;
 use Data::Dumper;
 use Time::HiRes;
 our $AUTOLOAD;
-*VERSION = \'2.4.6.2';
+*VERSION = \'2.4.8';
 
 use constant { OK => 0, WARNING => 1, CRITICAL => 2, UNKNOWN => 3 };
 
@@ -262,6 +262,13 @@ sub add_default_args {
       required => 0,
       hidden => 1,
   );
+  $self->add_arg(
+      spec => 'tracefile=s',
+      help => "--tracefile
+   Write debugging-info to this file (if it exists)",
+      required => 0,
+      hidden => 1,
+  );
 }
 
 sub add_modes {
@@ -437,7 +444,9 @@ sub get_variable {
 
 sub debug {
   my ($self, $format, @message) = @_;
-  my $tracefile = "/tmp/".$Monitoring::GLPlugin::pluginname.".trace";
+  my $tracefile = $self->opts->tracefile ?
+      $self->opts->tracefile :
+      "/tmp/".$Monitoring::GLPlugin::pluginname.".trace";
   $self->{trace} = -f $tracefile ? 1 : 0;
   if ($self->get_variable("verbose") &&
       $self->get_variable("verbose") > $self->get_variable("verbosity", 10)) {
@@ -1223,8 +1232,8 @@ sub valdiff {
       }
     }
     if ($mode eq "normal" || $mode eq "lookback" || $mode eq "lookback_freeze_chill") {
-      if ($self->{$_} =~ /^\d+\.*\d*$/) {
-        $last_values->{$_} = 0 if ! exists $last_values->{$_};
+      if (exists $self->{$_} && defined $self->{$_} && $self->{$_} =~ /^\d+\.*\d*$/) {
+        $last_values->{$_} = 0 if ! (exists $last_values->{$_} && defined $last_values->{$_});
         if ($self->{$_} >= $last_values->{$_}) {
           $self->{'delta_'.$_} = $self->{$_} - $last_values->{$_};
         } elsif ($self->{$_} eq $last_values->{$_}) {
@@ -1271,6 +1280,13 @@ sub valdiff {
         my @lost = grep(!defined $current{$_}, @{$last_values->{$_}});
         $self->{'delta_found_'.$_} = \@found;
         $self->{'delta_lost_'.$_} = \@lost;
+      } else {
+        # nicht ganz sauber, aber das artet aus, wenn man jedem uninitialized hinterherstochert.
+        # wem das nicht passt, der kann gerne ein paar tage debugging beauftragen.
+        # das kostet aber mehr als drei kugeln eis.
+        $last_values->{$_} = 0 if ! (exists $last_values->{$_} && defined $last_values->{$_});
+        $self->{$_} = 0 if ! (exists $self->{$_} && defined $self->{$_});
+        $self->{'delta_'.$_} = 0;
       }
     }
   }
@@ -1371,12 +1387,14 @@ sub protect_value {
   if (ref($validfunc) ne "CODE" && $validfunc eq "percent") {
     $validfunc = sub {
       my $value = shift;
+      return 0 if ! defined $value;
       return 0 if $value !~ /^[-+]?([0-9]+(\.[0-9]+)?|\.[0-9]+)$/;
       return ($value < 0 || $value > 100) ? 0 : 1;
     };
   } elsif (ref($validfunc) ne "CODE" && $validfunc eq "positive") {
     $validfunc = sub {
       my $value = shift;
+      return 0 if ! defined $value;
       return 0 if $value !~ /^[-+]?([0-9]+(\.[0-9]+)?|\.[0-9]+)$/;
       return ($value < 0) ? 0 : 1;
     };
